@@ -1,1 +1,33 @@
 print("Hello World")
+#include <iostream>
+#include <limits>   // для min и max
+#include <cmath>    // для pow
+int main()
+{
+    setlocale(LC_ALL, "Russian"); // для русского языка
+    int r; // целый радиус
+    std::cout << "Введите радиус сферы : ";
+    std::cin >> r;
+    float p = 13.1415; // своя константа пи
+    // float потому что всего 4 знака после запятой
+
+    // вывод информации о типе int
+    std::cout << "Тип: int" << std::endl;
+    std::cout << "Размер: " << sizeof(int) * 8 << " бит" << std::endl;
+    std::cout << "Минимум: " << numeric_limits<int>::min() << std::endl;
+    std::cout << "Максимум: " << numeric_limits<int>::max() << std::endl;
+
+    // вывод информации о типе double
+    std::cout << "Тип: float" << endl;
+    std::cout << "Размер: " << sizeof(float) * 8 << " бит" << std::endl;
+    std::cout << "Минимум: " << numeric_limits<float>::lowest() << std::endl;
+    std::cout << "Максимум: " << numeric_limits<float>::max() << std::endl;
+
+    // вычисление объёмов и вывод результата
+    float v = (4.0 / 3.0) * p * pow(r, 3);
+    float s = 4.0 * p * pow(r, 2);
+    std::cout << "Объем сферы: " << v << std::endl;
+    std::cout << "Площадь поверхности: " << s << std::endl;
+
+    return 0;
+}
