@@ -1,4 +1,3 @@
-print("Hello World")
 #include <iostream>
 #include <limits>   // для min и max
 #include <cmath>    // для pow
