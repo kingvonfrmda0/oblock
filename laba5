@@ -1,0 +1,75 @@
+#include <cmath>
+#include <iostream>
+
+int countMD(int num) {
+	std::cout << "исп. функция подсчета повторений макс цифры числа" << std::endl;
+
+	num = abs(num);
+	int maxD = -1;
+	int count = 0;
+	// перебор цифр числа 
+	while (num > 0) {
+		int d = num % 10;
+		if (d > maxD) {
+			maxD = d;
+            count = 1;
+		}
+		else if (d == maxD) {
+			count++;
+		
+		}
+		num /= 10;
+	}
+	return count;
+
+}
+int midORmin(int a, int b, int c) {
+	std::cout << "исп. функция поиска среди 3 чисел" << std::endl;
+
+	// если числа разные – возвращаю среднее по модулю
+	if (a != b && b != c && a != c) {
+		int A = abs(a), B = abs(b), C = abs(c);
+
+		// нахожу среднее по модулю (среднее значение среди трёх)
+		if ((A > B && A < C) || (A < B && A > C)) return a;
+		if ((B > A && B < C) || (B < A && B > C)) return b;
+		return c;
+	}
+
+	// иначе — минимальное из них
+	int mn = a;
+	if (b < mn) mn = b;
+	if (c < mn) mn = c;
+	return mn;
+}
+int main() {
+    setlocale(LC_ALL, "Russian");
+
+	int a, b, c;
+	std::cout << "введите три числа: ";
+	std::cin >> a >> b >> c;
+
+	// Считаем фактическое количество чисел
+	
+	int count = 0;
+	if (a != 0) count++;
+	if (b != 0) count++;
+	if (c != 0) count++;
+
+	if (count == 1) {
+		// Находим, какое число не равно 0
+		int num = (a != 0 ? a : (b != 0 ? b : c));
+		std::cout << "Результат: " << countMD(num);
+	}
+	else if (count == 2) {
+		std::cout << "Ошибка: введено два числа. По условию это недопустимо.";
+	}
+	else if (count == 3) {
+		std::cout << "Результат: " << midORmin(a, b, c);
+	}
+	else {
+		std::cout << "Ошибка: не введено ни одного числа.";
+	}
+
+	return 0;
+}
