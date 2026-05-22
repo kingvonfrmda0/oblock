@@ -1,0 +1,214 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip> // Для красивого выравнивания таблицы (setw)
+#include <windows.h>
+
+char to_lower(char c) {
+    unsigned char uc = c;
+    if (uc >= 0xC0 && uc <= 0xDF) return uc + 32;
+    if (uc == 0xA8) return 0xB8;
+    return uc;
+}
+
+bool is_letter(char c) {
+    unsigned char uc = to_lower(c);
+    return (uc >= 0xE0 && uc <= 0xFF) || uc == 0xB8;
+}
+
+bool is_digit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+bool is_abc(std::string s) {
+    if (s.length() <= 1) return true;
+    for (size_t i = 1; i < s.length(); i++) {
+        unsigned char prev = to_lower(s[i - 1]);
+        unsigned char curr = to_lower(s[i]);
+        if (prev == 0xB8) prev = 0xE5 + 1;
+        if (curr == 0xB8) curr = 0xE5 + 1;
+        if (curr < prev) return false;
+    }
+    return true;
+}
+
+std::string clean_word(std::string raw) {
+    int start = 0;
+    int end = static_cast<int>(raw.length()) - 1;
+    while (start <= end) {
+        if (is_letter(raw[start]) || is_digit(raw[start])) break;
+        start++;
+    }
+    while (end >= start) {
+        if (is_letter(raw[end])) break;
+        end--;
+    }
+    if (start > end || !is_letter(raw[end])) return "";
+    return raw.substr(start, end - start + 1);
+}
+
+bool is_equal(std::string s1, std::string s2) {
+    if (s1.length() != s2.length()) return false;
+    for (size_t i = 0; i < s1.length(); i++) {
+        if (to_lower(s1[i]) != to_lower(s2[i])) return false;
+    }
+    return true;
+}
+
+// Функция вывода строки таблицы (символ и его код)
+void print_row(char c) {
+    // Выводим символ и его код в декомпрессированном виде (0-255)
+    std::cout << "  " << c << "   |  " << std::setw(3) << static_cast<int>(static_cast<unsigned char>(c)) << "   ";
+}
+
+int main() {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+
+    std::cout << "Выберите задачу (0, 1 или 2): ";
+    int choice;
+    std::cin >> choice;
+
+    if (std::cin.fail() || (choice != 0 && choice != 1 && choice != 2)) {
+        std::cout << "Ошибка: такой задачи не существует!" << std::endl;
+        return 1;
+    }
+
+    std::cin.ignore();
+
+    if (choice == 0) {
+        // ПУНКТ 0: Таблица Буква/Код (Windows-1251)
+        std::cout << "\nТАБЛИЦА СИМВОЛОВ И КОДОВ\n\n";
+        std::cout << "Симв | Код    Симв | Код    Симв | Код\n";
+        std::cout << "----------------------------------------\n";
+
+        int columns = 0;
+
+        // 1. Английский алфавит (ЗАГЛАВНЫЕ)
+        for (char c = 'A'; c <= 'Z'; c++) {
+            print_row(c);
+            if (++columns % 3 == 0) std::cout << "\n";
+        }
+        // 2. Английский алфавит (строчные)
+        for (char c = 'a'; c <= 'z'; c++) {
+            print_row(c);
+            if (++columns % 3 == 0) std::cout << "\n";
+        }
+        // 3. Цифры 0-9
+        for (char c = '0'; c <= '9'; c++) {
+            print_row(c);
+            if (++columns % 3 == 0) std::cout << "\n";
+        }
+        // 4. Стандартные знаки препинания
+        const char punctuation[] = ".,;:!?-\"()<>[]{}*&%@#/";
+        for (int i = 0; punctuation[i] != '\0'; i++) {
+            print_row(punctuation[i]);
+            if (++columns % 3 == 0) std::cout << "\n";
+        }
+        // 5. Русский алфавит (ЗАГЛАВНЫЕ)
+        for (int i = 0xC0; i <= 0xDF; i++) { // А-Я в Windows-1251
+            print_row(static_cast<char>(i));
+            if (++columns % 3 == 0) std::cout << "\n";
+        }
+        print_row(static_cast<char>(0xA8)); // Ё
+        if (++columns % 3 == 0) std::cout << "\n";
+
+        // 6. Русский алфавит (строчные)
+        for (int i = 0xE0; i <= 0xFF; i++) { // а-я в Windows-1251
+            print_row(static_cast<char>(i));
+            if (++columns % 3 == 0) std::cout << "\n";
+        }
+        print_row(static_cast<char>(0xB8)); // ё
+        if (++columns % 3 == 0) std::cout << "\n";
+
+        std::cout << "\n\n========================================\n";
+    }
+    else if (choice == 1) {
+        // ЗАДАЧА 1: Массив char (1 символ = 1 байт)
+        char text_str[105];
+        std::cout << "Введите строку (до 100 символов): ";
+        std::cin.getline(text_str, 105);
+
+        char vowels[] = "аеёиоуъыьэюя";
+        int write_pos = 0;
+
+        for (int i = 0; text_str[i] != '\0'; i++) {
+            char current_char = text_str[i];
+            char low_char = to_lower(current_char);
+            bool is_vowel = false;
+
+            for (int j = 0; vowels[j] != '\0'; j++) {
+                if (low_char == vowels[j]) {
+                    is_vowel = true;
+                    break;
+                }
+            }
+
+            if (!is_vowel) {
+                text_str[write_pos] = current_char;
+                write_pos++;
+            }
+        }
+        text_str[write_pos] = '\0';
+
+        std::cout << "Результат: " << text_str << std::endl;
+    }
+    else if (choice == 2) {
+        // ЗАДАЧА 2: Работа с файлами
+        std::ifstream file_in("C:\\Users\\fimaf\\source\\repos\\oblock\\stroki\\input.txt");
+        int n = 0;
+        if (!(file_in >> n)) {
+            std::cout << "Ошибка чтения файла input.txt" << std::endl;
+            return 1;
+        }
+        file_in.close();
+
+        const int MAX_WORDS = 500;
+        std::string* words_arr = new std::string[MAX_WORDS];
+        int words_count = 0;
+
+        std::ifstream file_text("C:\\Users\\fimaf\\source\\repos\\oblock\\stroki\\text.txt");
+        std::string current_word;
+
+        while (file_text >> current_word && words_count < MAX_WORDS) {
+            std::string cleaned = clean_word(current_word);
+            if (cleaned.empty() || !is_abc(cleaned)) continue;
+
+            bool duplicate = false;
+            for (int i = 0; i < words_count; i++) {
+                if (is_equal(words_arr[i], cleaned)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+
+            if (!duplicate) {
+                words_arr[words_count] = cleaned;
+                words_count++;
+            }
+        }
+        file_text.close();
+
+        for (int i = 0; i < words_count - 1; i++) {
+            for (int j = 0; j < words_count - i - 1; j++) {
+                if (words_arr[j].length() < words_arr[j + 1].length()) {
+                    std::string temp = words_arr[j];
+                    words_arr[j] = words_arr[j + 1];
+                    words_arr[j + 1] = temp;
+                }
+            }
+        }
+
+        std::ofstream file_res("C:\\Users\\fimaf\\source\\repos\\oblock\\stroki\\result.txt");
+        int limit = (words_count < n) ? words_count : n;
+        for (int i = 0; i < limit; i++) {
+            file_res << words_arr[i] << "\n";
+        }
+        file_res.close();
+
+        delete[] words_arr;
+        std::cout << "Задача 2 успешно выполнена. Результат записан в файл result.txt" << std::endl;
+    }
+
+    return 0;
+}
